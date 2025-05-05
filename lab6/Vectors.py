@@ -1,8 +1,6 @@
-# --- Importy ---
-# Unikaj import * dla lepszej czytelności i unikania konfliktów nazw
-from pygame.locals import DOUBLEBUF, OPENGL, QUIT, KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, K_ESCAPE
-from OpenGL.GL import glMatrixMode, glLoadIdentity, glViewport, glDisable, glEnable, glClear, GL_PROJECTION, GL_MODELVIEW, GL_DEPTH_TEST, GL_TEXTURE_2D, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_POLYGON
-from OpenGL.GLU import gluOrtho2D, gluPerspective
+from pygame.locals import DOUBLEBUF, OPENGL, QUIT, KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, K_ESCAPE, K_SPACE
+from OpenGL.GL import glMatrixMode, glLoadIdentity, glViewport, glDisable, glEnable, glClear, GL_PROJECTION, GL_MODELVIEW, GL_DEPTH_TEST, GL_TEXTURE_2D, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_POLYGON, glColor3f
+from OpenGL.GLU import gluOrtho2D, gluPerspective, gluLookAt
 from Object import Object
 from Cube import Cube
 from Button import Button
@@ -10,7 +8,10 @@ from Settings import window_width, window_height, gui_width, gui_height
 from Transform import Transform
 import os
 import pygame
-from LoadMesh import *
+from Grid import *
+from Object import *
+
+
 
 # --- Inicjalizacja Pygame i okna OpenGL ---
 pygame.init()
@@ -31,32 +32,21 @@ if not os.path.exists(texture_path):
 
 # --- Tworzenie obiektu 3D (kostka) ---
 cube = Object("Cube")
-cube.add_component(Transform((0, 0, -5)))
-#cube.add_component(Cube(GL_POLYGON, texture_path))
+cube.add_component(Transform((0, 0, -5), (0, 0, 15), (1, 1, 1))) # Transformacja: pozycja, rotacja, skala
+cube.add_component(Cube(GL_POLYGON, texture_path))
 
-#cube.add_component(LoadMesh(GL_LINE_LOOP, os.path.join("models", "teapot.obj")))
-cube.add_component(LoadMesh(GL_TRIANGLES, os.path.join("models", "teapot.obj")))
+cube2 = Object("Cube2")
+cube2.add_component(Transform((0, 2.5 , -5))) # Transformacja: pozycja, rotacja, skala
+cube2.add_component(Cube(GL_POLYGON, texture_path))
+
+# ----inicjalizacja i ryspwanie sitki ---
+grid = Object("Grid")
+grid.add_component(Transform(0,0,-5)) #
+grid.add_component(Grid(0.5 ,8,(255,0,255))) #siatka z odstepem 0.5, sakala 10, kolor
+objects_3d.append(grid)
+
 objects_3d.append(cube)
-
-# --- Definicje kolorów (pygame.Color) ---
-myWhite = pygame.Color(255, 255, 255)
-myGreen = pygame.Color(0, 255, 0)
-myRed = pygame.Color(255, 0, 0)
-myBlue = pygame.Color(0, 0, 255)
-myYellow = pygame.Color(255, 255, 0)
-
-# --- Callback przycisku ---
-def button_click_action():
-    print("Hello Button")
-
-# --- Tworzenie przycisku 2D ---
-button1 = Object("Button1")
-button1.add_component(Button(screen, (50, 50), 100, 30,
-                            myGreen,  # Kolor normalny
-                            myYellow,  # Kolor po najechaniu
-                            myRed,     # Kolor po kliknięciu
-                            button_click_action))
-objects_2d.append(button1)
+objects_3d.append(cube2)
 
 clock = pygame.time.Clock()
 fps = 30
@@ -80,6 +70,13 @@ def set_3d():
     gluPerspective(60, (window_width / window_height), 0.1, 100.0)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
+    # Camera at (0, 2, 0), looking at (0, 0, -5), with Up vector (0, 1, 0)
+#    gluLookAt(0, 2, 0,  # Eye position (slightly above the origin)
+#              0, 0, -5, # Target position (where the grid/cube center is)
+#              0, 1, 0)  # Up vector (positive Y is up)
+    gluLookAt(0, 0, 5, 
+             0, 0, 0,
+             0, 1, 0)
     glViewport(0, 0, window_width, window_height)
     glEnable(GL_DEPTH_TEST)
 
@@ -102,6 +99,9 @@ while not done:
                     trans.move_y(move_speed)
                 elif event.key == K_DOWN:
                     trans.move_y(-move_speed)
+                elif event.key == K_SPACE: # 
+                    trans.move(pygame.math.Vector3(0.5, 0,0))
+
             if event.key == K_ESCAPE:
                 done = True
     # --- Możliwa alternatywa: obsługa ciągłego wciśnięcia klawiszy ---
@@ -126,6 +126,8 @@ while not done:
     set_3d()
     for o in objects_3d:
         o.update(events)
+        # Reset color to white after each object is drawn
+        glColor3f(1.0, 1.0, 1.0)
 
     # --- Renderowanie GUI 2D ---
     set_2d()

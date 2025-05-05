@@ -9,7 +9,6 @@ Zbiór zadań laboratoryjnych z kursu Grafika Komputerowa realizowany w Pythonie
 - **lab3/** – Modele 3D i transformacje (skalowanie, obrót, translacja).
 - **lab4/** – Interfejs użytkownika: przyciski, zdarzenia myszy oraz GUI z PyGame.
 - **lab5/** – Ładowanie i wyświetlanie zewnętrznych modeli (np. czajnik Teapot) oraz zaawansowane ustawienia kamery.
-- **fire.py** – Skrypt pomocniczy (opcjonalnie).
 
 ## Wymagania
 

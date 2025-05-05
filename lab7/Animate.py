@@ -43,7 +43,7 @@ cube.add_component(DisplayNormals(cube.get_component(Cube).vertices,
 
 # ----inicjalizacja i ryspwanie sitki ---
 grid = Object("Grid")
-grid.add_component(Transform(0,0,-5)) #
+grid.add_component(Transform((0,0,-5))) #
 grid.add_component(Grid(0.5 ,8,(255,0,255))) #siatka z odstepem 0.5, sakala 10, kolor
 objects_3d.append(grid)
 objects_3d.append(cube)
